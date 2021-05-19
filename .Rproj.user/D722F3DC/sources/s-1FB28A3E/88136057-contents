@@ -1,0 +1,29 @@
+dataset = read.csv('data7.csv')
+dataset = dataset[3:5]
+dataset$categorie = factor(dataset$categorie, levels = c(0, 1))
+install.packages('caTools')
+library(caTools)
+set.seed(123)
+split = sample.split(dataset$categorie, SplitRatio = 0.75)
+training_set = subset(dataset, split == TRUE)
+test_set = subset(dataset, split == FALSE)
+training_set[-3] = scale(training_set[-3])
+test_set[-3] = scale(test_set[-3])
+install.packages('e1071')
+library(e1071)
+classifier = svm(formula = categorie ~ .,
+                 data = training_set,
+                 type = 'C-classification',
+                 kernel = 'linear')
+y_pred = predict(classifier, newdata = test_set[-3])
+#y_pred
+cm = table(test_set[, 3], y_pred)
+#cm
+install.packages('ElemStatLearn')
+library(ElemStatLearn)
+set = training_set
+X1 = seq(min(set[, 1]) - 1, max(set[, 1]) + 1, by = 0.01)
+X2 = seq(min(set[, 2]) - 1, max(set[, 2]) + 1, by = 0.01)
+grid_set = expand.grid(X1, X2)
+colnames(grid_set) = c('activite', 'prix')
+y_grid = predict(classifier, newdata = grid_set)
